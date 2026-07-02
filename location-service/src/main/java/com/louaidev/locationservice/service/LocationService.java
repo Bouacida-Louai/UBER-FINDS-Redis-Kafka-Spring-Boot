@@ -49,8 +49,9 @@ public class LocationService {
 
         log.info("finding drivers near lat :{} lat :{} withing {} Km ",latitud,longitude,radiusInKm);
 
-        Circle searchArea = new Circle(new Point(longitude, latitud),
-                new Distance(radiusInKm, org.springframework.data.geo.Metrics.KILOMETERS));
+        Circle searchArea = new Circle(new Point(longitude, latitud)
+                , new Distance(radiusInKm, Metrics.KILOMETERS));
+
 
         GeoResults<RedisGeoCommands.GeoLocation<String>> results =
                 redisTemplate.opsForGeo().radius(DRIVERS_GEO_KEY, searchArea, RedisGeoCommands.GeoRadiusCommandArgs
@@ -74,9 +75,20 @@ public class LocationService {
 
 
         return nearByDrivers;
+
+
     }
 
+    /**
+     * remove driver from redis when he goes offline
+     *Maps to redis ZREM command
+     */
 
-    public void removeDriver(String driverID) {
+    public void removeDriver(String driverId) {
+
+        log.info("removing driver :{} from redis",driverId);
+
+        redisTemplate.opsForGeo().remove(DRIVERS_GEO_KEY,driverId);
+
     }
 }
